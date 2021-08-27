@@ -39,6 +39,10 @@ class EmployeeController {
 	Employee one(@PathVariable Long id) {
 
 		return repository.findById(id)
+			.map(employee -> {
+				repository.customMethod(employee);
+				return employee;
+			})
 			.orElseThrow(() -> new EmployeeNotFoundException(id));
 	}
 
