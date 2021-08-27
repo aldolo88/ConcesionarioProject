@@ -5,6 +5,7 @@ import com.example.demo.model.Employee;
 import com.example.demo.model.repositories.EmployeeRepository;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,22 +24,16 @@ class EmployeeController {
 		this.repository = repository;
 	}
 
-
-	// Aggregate root
-	// tag::get-aggregate-root[]
 	@GetMapping("/employees")
 	List<Employee> all() {
 		return repository.findAll();
 	}
-	// end::get-aggregate-root[]
 
 	@PostMapping("/employees")
-	ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
-		repository.save(newEmployee);
-		return ResponseEntity.status(201).body(newEmployee);
+	ResponseEntity<Employee> newEmployee(@RequestBody Employee employee) {
+		repository.save(employee);
+		return new ResponseEntity<>(employee, HttpStatus.CREATED);
 	}
-
-	// Single item
 
 	@GetMapping("/employees/{id}")
 	Employee one(@PathVariable Long id) {
