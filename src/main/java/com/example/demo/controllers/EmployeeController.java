@@ -1,9 +1,11 @@
-package com.example.demo;
+package com.example.demo.controllers;
 
 import com.example.demo.exceptions.EmployeeNotFoundException;
 import com.example.demo.model.Employee;
+import com.example.demo.model.repositories.EmployeeRepository;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,8 +33,9 @@ class EmployeeController {
 	// end::get-aggregate-root[]
 
 	@PostMapping("/employees")
-	Employee newEmployee(@RequestBody Employee newEmployee) {
-		return repository.save(newEmployee);
+	ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
+		repository.save(newEmployee);
+		return ResponseEntity.status(201).body(newEmployee);
 	}
 
 	// Single item
