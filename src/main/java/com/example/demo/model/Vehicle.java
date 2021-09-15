@@ -1,14 +1,21 @@
 package com.example.demo.model;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table (name="vehicles")
 public class Vehicle {
 
-    private long id;
-    private long providerId;
+    @Id @GeneratedValue private long id;
+    @JoinColumn(name="provider_id") @ManyToOne private Provider provider;
     private String model;
     private String colour;
-    private int horsePower;
+    @Column(name="horse_power") private int horsePower;
     private Type type;
     private double PVP;
+    // @OneToMany(mappedBy = "vehicle") private List<Product> products;
+    @OneToOne(mappedBy="vehicle") @PrimaryKeyJoinColumn private Stock stock;
 
     public Vehicle() {}
 

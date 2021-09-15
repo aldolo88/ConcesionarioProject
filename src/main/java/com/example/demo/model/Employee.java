@@ -2,16 +2,17 @@ package com.example.demo.model;
 
 import java.util.Objects;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name="employees")
 public class Employee {
 
-	private @Id @GeneratedValue Long id;
+	@Id @GeneratedValue private long id;
 	private String name;
 	private String role;
+	//    @OneToMany(mappedBy = "employee") private List<Sale> sales;
+	//    @OneToMany(mappedBy = "employee") private List<Order> orders;
 
 	Employee() {}
 
@@ -21,7 +22,7 @@ public class Employee {
 		this.role = role;
 	}
 
-	public Long getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -33,7 +34,7 @@ public class Employee {
 		return this.role;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
