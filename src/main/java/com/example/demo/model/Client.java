@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import javax.persistence.*;
@@ -12,9 +13,11 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @NotNull
+    @Column(nullable = false)
     private String dni;
 
-    @NotNull
+    @NotBlank(message = "Name vacio")
+    @Column(nullable = false)
     private String name;
     private int phone;
 //    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL) private List<Sale> sales;
@@ -61,10 +64,10 @@ public class Client {
     @Override
     public String toString() {
         return "Client{" +
-                "id=" + id +
-                ", dni='" + dni + '\'' +
-                ", name='" + name + '\'' +
-                ", phone=" + phone +
+                "id=" + this.id +
+                ", dni='" + this.dni + '\'' +
+                ", name='" + this.name + '\'' +
+                ", phone=" + this.phone +
                 '}';
     }
 }
