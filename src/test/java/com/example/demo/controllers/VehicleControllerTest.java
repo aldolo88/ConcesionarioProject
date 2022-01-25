@@ -49,7 +49,7 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
     @Test
-    public void newVehicle_ko_JSON_vacio() throws Exception {
+    public void newVehicle_ko_empty_JSON() throws Exception {
         //Given
         Mockito.when(vehicleRepository.save(Mockito.any(Vehicle.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then
@@ -64,7 +64,7 @@ public class VehicleControllerTest {
     }
 
     @Test
-    public void newVehicle_ko_JSON_claves_JSON_no_corresponden_atributos() throws Exception {
+    public void newVehicle_ko_wrong_attribute_JSON() throws Exception {
         //Given
         Mockito.when(vehicleRepository.save(Mockito.any(Vehicle.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then

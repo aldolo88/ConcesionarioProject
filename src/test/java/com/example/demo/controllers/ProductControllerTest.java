@@ -51,7 +51,7 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
     @Test
-    public void newProduct_ko_JSON_vacio() throws Exception {
+    public void newProduct_ko_empty_JSON() throws Exception {
         //Given
         Mockito.when(productRepository.save(Mockito.any(Product.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then
@@ -66,7 +66,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void newProduct_ko_JSON_claves_JSON_no_corresponden_atributos() throws Exception {
+    public void newProduct_ko_wrong_attribute_JSON() throws Exception {
         //Given
         Mockito.when(productRepository.save(Mockito.any(Product.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then

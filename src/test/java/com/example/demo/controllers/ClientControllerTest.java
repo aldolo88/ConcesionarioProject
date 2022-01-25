@@ -46,7 +46,7 @@ public class ClientControllerTest {
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
     @Test
-    public void newClient_ko_JSON_vacio() throws Exception {
+    public void newClient_ko_empty_JSON() throws Exception {
         //Given
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then
@@ -75,7 +75,7 @@ public class ClientControllerTest {
     }
     */
     @Test
-    public void newClient_ko_claves_JSON_no_corresponden_atributos() throws Exception {
+    public void newClient_ko_wrong_attribute_JSON() throws Exception {
         //Given
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then

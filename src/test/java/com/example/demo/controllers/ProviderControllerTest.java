@@ -44,7 +44,7 @@ public class ProviderControllerTest {
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
     @Test
-    public void newProvider_ko_JSON_vacio() throws Exception {
+    public void newProvider_ko_empty_JSON() throws Exception {
         //Given
         Mockito.when(providerRepository.save(Mockito.any(Provider.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then
@@ -59,7 +59,7 @@ public class ProviderControllerTest {
     }
 
     @Test
-    public void newProvider_ko_JSON_claves_JSON_no_corresponden_atributos() throws Exception {
+    public void newProvider_ko_wrong_attribute_JSON() throws Exception {
         //Given
         Mockito.when(providerRepository.save(Mockito.any(Provider.class))).thenThrow(new DataIntegrityViolationException("errorsito"));
         //when, then
