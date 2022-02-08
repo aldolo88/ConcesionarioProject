@@ -1,8 +1,11 @@
 package com.example.demo.model;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Objects;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "employees")
@@ -11,7 +14,9 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotNull
     private String name;
+    @NotNull
     private String role;
     //    @OneToMany(mappedBy = "employee") private List<Sale> sales;
     //    @OneToMany(mappedBy = "employee") private List<Order> orders;
