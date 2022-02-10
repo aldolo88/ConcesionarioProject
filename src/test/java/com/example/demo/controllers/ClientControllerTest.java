@@ -138,7 +138,7 @@ public class ClientControllerTest {
                 .andExpect(content().string("Internal Server Error"));
     }
 
-    //PUT
+    //PUT--------------------------------------------------------------------------------------------------------------
     @Test
     public void putClient_success() throws Exception {
         //Given
@@ -207,7 +207,7 @@ public class ClientControllerTest {
                 .andExpect(content().string("Id not found: 1"));
     }
 
-    //DELETE
+    //DELETE-----------------------------------------------------------------------------------------------------------
     @Test
     public void deleteOneClient_success() throws Exception {
         //Given
