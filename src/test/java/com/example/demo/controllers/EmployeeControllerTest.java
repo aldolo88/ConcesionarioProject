@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.aux.TestClassConstructors;
 import com.example.demo.model.Employee;
 import com.example.demo.model.repositories.EmployeeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,8 +35,8 @@ public class EmployeeControllerTest {
     @Test
     public void getAllEmployees_success() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        List<Employee> allEmployees = List.of(employee1);
+        Employee employee = new TestClassConstructors().TestEmployee();
+        List<Employee> allEmployees = List.of(employee);
         Mockito.when(employeeRepository.findAll()).thenReturn(allEmployees);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/employees")
@@ -43,8 +44,8 @@ public class EmployeeControllerTest {
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",hasSize(1)))
-                .andExpect(jsonPath("$[0].name",is(employee1.getName())))
-                .andExpect(jsonPath("$[0].role",is(employee1.getRole())))
+                .andExpect(jsonPath("$[0].name",is(employee.getName())))
+                .andExpect(jsonPath("$[0].role",is(employee.getRole())))
                 .andExpect(jsonPath("$[0].id",notNullValue()));
     }
 
@@ -63,16 +64,16 @@ public class EmployeeControllerTest {
     @Test
     public void getOneEmployee_success() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee1));
+        Employee employee = new TestClassConstructors().TestEmployee();
+        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.name",is(employee1.getName())))
-                .andExpect(jsonPath("$.role",is(employee1.getRole())))
+                .andExpect(jsonPath("$.name",is(employee.getName())))
+                .andExpect(jsonPath("$.role",is(employee.getRole())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
@@ -92,30 +93,31 @@ public class EmployeeControllerTest {
     @Test
     public void newEmployee_success() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(employee1);
+        Employee employee = new TestClassConstructors().TestEmployee();
+        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(employee);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/employees")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(employee1));
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.name",is(employee1.getName())))
-                .andExpect(jsonPath("$.role",is(employee1.getRole())))
+                .andExpect(jsonPath("$.name",is(employee.getName())))
+                .andExpect(jsonPath("$.role",is(employee.getRole())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
     @Test
     public void newEmployee_ko_null_attribute_JSON() throws Exception {
         //Given
+        Employee employee = new TestClassConstructors().TestEmployee();
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/employees")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Alber\"}");
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -124,13 +126,13 @@ public class EmployeeControllerTest {
     @Test
     public void newEmployee_ko_Internal_server_error() throws Exception {
         //Given
+        Employee employee = new TestClassConstructors().TestEmployee();
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/employees")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Alber\",\"role\":\"Rol1\"}");
-
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -140,34 +142,34 @@ public class EmployeeControllerTest {
     @Test
     public void putEmployee_success() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        Employee modEmployee1 = new Employee("Alber", "Rol2");
-        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee1));
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(modEmployee1);
+        Employee employee = new TestClassConstructors().TestEmployee();
+        Employee modEmployee = new TestClassConstructors().TestModEmployee();
+        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee));
+        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(modEmployee);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modEmployee1));
+                .content(this.objectMapper.writeValueAsString(modEmployee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.name",is(modEmployee1.getName())))
-                .andExpect(jsonPath("$.role",is(modEmployee1.getRole())))
+                .andExpect(jsonPath("$.name",is(modEmployee.getName())))
+                .andExpect(jsonPath("$.role",is(modEmployee.getRole())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
     @Test
     public void putEmployee_ko_null_attribute_JSON() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee1));
+        Employee employee = new TestClassConstructors().TestEmployee();
+        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee));
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Alber\"}");
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -176,14 +178,14 @@ public class EmployeeControllerTest {
     @Test
     public void putEmployee_ko_Internal_server_error() throws Exception {
         //Given
-        Employee employee1 = new Employee("Alber", "Rol1");
-        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee1));
+        Employee employee = new TestClassConstructors().TestEmployee();
+        Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(employee));
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Alber\",\"role\":\"Rol1\"}");
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -192,13 +194,13 @@ public class EmployeeControllerTest {
     @Test
     public void putEmployee_notFound() throws Exception {
         //Given
-        Employee modEmployee1 = new Employee("Alber", "Rol2");
+        Employee employee = new TestClassConstructors().TestEmployee();
         Mockito.when(employeeRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.empty());
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modEmployee1));
+                .content(this.objectMapper.writeValueAsString(employee));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Id not found: 1"));

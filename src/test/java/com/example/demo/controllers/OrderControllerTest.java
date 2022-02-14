@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.model.Employee;
-import com.example.demo.model.Provider;
+import com.example.demo.aux.TestClassConstructors;
 import com.example.demo.model.Order;
 import com.example.demo.model.repositories.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.validation.ConstraintViolationException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -37,13 +35,9 @@ public class OrderControllerTest {
     @Test
     public void getAllOrders_success() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        List<Order> allOrders = List.of(order1);
+        TestClassConstructors constructor = new TestClassConstructors();
+        Order order = constructor.TestOrder();
+        List<Order> allOrders = List.of(order);
         Mockito.when(orderRepository.findAll()).thenReturn(allOrders);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/orders")
@@ -51,10 +45,10 @@ public class OrderControllerTest {
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",hasSize(1)))
-                .andExpect(jsonPath("$[0].employee.name",is(order1.getEmployee().getName())))
-                .andExpect(jsonPath("$[0].employee.role",is(order1.getEmployee().getRole())))
-                .andExpect(jsonPath("$[0].provider.providerName",is(order1.getProvider().getProviderName())))
-                .andExpect(jsonPath("$[0].orderDate",is(sdf.format(date))))
+                .andExpect(jsonPath("$[0].employee.name",is(order.getEmployee().getName())))
+                .andExpect(jsonPath("$[0].employee.role",is(order.getEmployee().getRole())))
+                .andExpect(jsonPath("$[0].provider.providerName",is(order.getProvider().getProviderName())))
+                .andExpect(jsonPath("$[0].orderDate",is(constructor.getFormattedDate())))
                 .andExpect(jsonPath("$[0].id",notNullValue()));
     }
 
@@ -73,23 +67,19 @@ public class OrderControllerTest {
     @Test
     public void getOneOrder_success() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order1));
+        TestClassConstructors constructor = new TestClassConstructors();
+        Order order = constructor.TestOrder();
+        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/orders/1")
                 .contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.employee.name",is(order1.getEmployee().getName())))
-                .andExpect(jsonPath("$.employee.role",is(order1.getEmployee().getRole())))
-                .andExpect(jsonPath("$.provider.providerName",is(order1.getProvider().getProviderName())))
-                .andExpect(jsonPath("$.orderDate",is(sdf.format(date))))
+                .andExpect(jsonPath("$.employee.name",is(order.getEmployee().getName())))
+                .andExpect(jsonPath("$.employee.role",is(order.getEmployee().getRole())))
+                .andExpect(jsonPath("$.provider.providerName",is(order.getProvider().getProviderName())))
+                .andExpect(jsonPath("$.orderDate",is(constructor.getFormattedDate())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
@@ -109,37 +99,34 @@ public class OrderControllerTest {
     @Test
     public void newOrder_success() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenReturn(order1);
+        TestClassConstructors constructor = new TestClassConstructors();
+        Order order = constructor.TestOrder();
+        Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenReturn(order);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(order1));
+                .content(this.objectMapper.writeValueAsString(order));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.employee.name",is(order1.getEmployee().getName())))
-                .andExpect(jsonPath("$.employee.role",is(order1.getEmployee().getRole())))
-                .andExpect(jsonPath("$.provider.providerName",is(order1.getProvider().getProviderName())))
-                .andExpect(jsonPath("$.orderDate",is(sdf.format(date))))
+                .andExpect(jsonPath("$.employee.name",is(order.getEmployee().getName())))
+                .andExpect(jsonPath("$.employee.role",is(order.getEmployee().getRole())))
+                .andExpect(jsonPath("$.provider.providerName",is(order.getProvider().getProviderName())))
+                .andExpect(jsonPath("$.orderDate",is(constructor.getFormattedDate())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
     @Test
     public void newOrder_ko_null_attribute_JSON() throws Exception {
         //Given
+        Order order = new TestClassConstructors().TestOrder();
         Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{}");
+                .content(this.objectMapper.writeValueAsString(order));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -149,12 +136,13 @@ public class OrderControllerTest {
     @Test
     public void newOrder_ko_Internal_server_error() throws Exception {
         //Given
+        Order order = new TestClassConstructors().TestOrder();
         Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"id\": 0,\"provider\": {\"id\": 0,\"providerName\": \"Provider1\"},\"Employee\": {\"id\": 0,\"name\": \"Alberto\",\"role\": \"Rol1\"},\"orderDate\":\"1970-01-01T00:00:00.000+00:00\"}");
+                .content(this.objectMapper.writeValueAsString(order));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -164,47 +152,37 @@ public class OrderControllerTest {
     @Test
     public void putOrder_success() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        Employee modEmployee1 = new Employee("Alber", "Rol2");
-        Order modOrder1 = new Order(provider, modEmployee1,date);
-        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order1));
-        Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenReturn(modOrder1);
+        TestClassConstructors constructor = new TestClassConstructors();
+        Order order = constructor.TestOrder();
+        Order modOrder = constructor.TestModOrder();
+        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order));
+        Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenReturn(modOrder);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/orders/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modOrder1));
+                .content(this.objectMapper.writeValueAsString(modOrder));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.employee.name",is(modOrder1.getEmployee().getName())))
-                .andExpect(jsonPath("$.employee.role",is(modOrder1.getEmployee().getRole())))
-                .andExpect(jsonPath("$.provider.providerName",is(modOrder1.getProvider().getProviderName())))
-                .andExpect(jsonPath("$.orderDate",is(sdf.format(date))))
+                .andExpect(jsonPath("$.employee.name",is(modOrder.getEmployee().getName())))
+                .andExpect(jsonPath("$.employee.role",is(modOrder.getEmployee().getRole())))
+                .andExpect(jsonPath("$.provider.providerName",is(modOrder.getProvider().getProviderName())))
+                .andExpect(jsonPath("$.orderDate",is(constructor.getFormattedDate())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
     @Test
     public void putOrder_ko_null_attribute_JSON() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order1));
+        Order order = new TestClassConstructors().TestOrder();
+        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order));
         Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/orders/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"id\": 0,\"provider\": {\"id\": 0,\"providerName\": \"Provider1\"},\"Employee\": {\"id\": 0,\"name\": \"Alberto\",\"role\": \"Rol1\"},\"orderDate\":\"1970-01-01T00:00:00.000+00:00\"}");
+                .content(this.objectMapper.writeValueAsString(order));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -213,19 +191,14 @@ public class OrderControllerTest {
     @Test
     public void putOrder_ko_Internal_server_error() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order order1 = new Order(provider,employee, date);
-        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order1));
+        Order order = new TestClassConstructors().TestOrder();
+        Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(order));
         Mockito.when(orderRepository.save(Mockito.any(Order.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/orders/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"id\": 0,\"provider\": {\"id\": 0,\"providerName\": \"Provider1\"},\"Employee\": {\"id\": 0,\"name\": \"Alberto\",\"role\": \"Rol1\"},\"orderDate\":\"1970-01-01T00:00:00.000+00:00\"}");
+                .content(this.objectMapper.writeValueAsString(order));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -234,18 +207,13 @@ public class OrderControllerTest {
     @Test
     public void putOrder_notFound() throws Exception {
         //Given
-        Employee employee = new Employee("Alberto", "Rol1");
-        Provider provider = new Provider("Provider1");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");//Al cambiar a GMT, la zona horaria se representa con Z en lugar de +00:00, por lo que lo añado manual para que coincida con lo esperado
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = new Date();
-        Order modOrder1 = new Order(provider,employee, date);
+        Order modOrder = new TestClassConstructors().TestModOrder();
         Mockito.when(orderRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.empty());
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/orders/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modOrder1));
+                .content(this.objectMapper.writeValueAsString(modOrder));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Id not found: 1"));

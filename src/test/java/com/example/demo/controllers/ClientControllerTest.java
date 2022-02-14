@@ -2,8 +2,9 @@ package com.example.demo.controllers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
+
+import com.example.demo.aux.TestClassConstructors;
 import com.example.demo.model.Client;
-import com.example.demo.model.Employee;
 import com.example.demo.model.repositories.ClientRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -35,8 +35,8 @@ public class ClientControllerTest {
     @Test
     public void getAllClients_success() throws Exception {
         //Given
-        Client client1 = new Client("12345678A","Alber",999888777);
-        List<Client> allClients = List.of(client1);
+        Client client = new TestClassConstructors().TestClient();
+        List<Client> allClients = List.of(client);
         Mockito.when(clientRepository.findAll()).thenReturn(allClients);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/clients")
@@ -44,9 +44,9 @@ public class ClientControllerTest {
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",hasSize(1)))
-                .andExpect(jsonPath("$[0].dni",is(client1.getDni())))
-                .andExpect(jsonPath("$[0].name",is(client1.getName())))
-                .andExpect(jsonPath("$[0].phone",is(client1.getPhone())))
+                .andExpect(jsonPath("$[0].dni",is(client.getDni())))
+                .andExpect(jsonPath("$[0].name",is(client.getName())))
+                .andExpect(jsonPath("$[0].phone",is(client.getPhone())))
                 .andExpect(jsonPath("$[0].id",notNullValue()));
     }
 
@@ -65,17 +65,17 @@ public class ClientControllerTest {
     @Test
     public void getOneClient_success() throws Exception {
         //Given
-        Client client1 = new Client("12345678A","Alber",999888777);
-        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client1));
+        Client client = new TestClassConstructors().TestClient();
+        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/clients/1")
                 .contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.dni",is(client1.getDni())))
-                .andExpect(jsonPath("$.name",is(client1.getName())))
-                .andExpect(jsonPath("$.phone",is(client1.getPhone())))
+                .andExpect(jsonPath("$.dni",is(client.getDni())))
+                .andExpect(jsonPath("$.name",is(client.getName())))
+                .andExpect(jsonPath("$.phone",is(client.getPhone())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
@@ -95,30 +95,32 @@ public class ClientControllerTest {
     @Test
     public void newClient_success() throws Exception {
         //Given
-        Client client1 = new Client("12345678A", "Alber", 999888777);
-        Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenReturn(client1);
+        Client client = new TestClassConstructors().TestClient();
+        Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenReturn(client);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(client1));
+                .content(this.objectMapper.writeValueAsString(client));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.dni",is(client1.getDni())))
-                .andExpect(jsonPath("$.name",is(client1.getName())))
-                .andExpect(jsonPath("$.phone",is(client1.getPhone())))
+                .andExpect(jsonPath("$.dni",is(client.getDni())))
+                .andExpect(jsonPath("$.name",is(client.getName())))
+                .andExpect(jsonPath("$.phone",is(client.getPhone())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
+
     @Test
     public void newClient_ko_null_attribute_JSON() throws Exception {
         //Given
+        Client client = new TestClassConstructors().TestClient();
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"dni\":\"12345678A\"}");
+                .content(this.objectMapper.writeValueAsString(client));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -127,12 +129,13 @@ public class ClientControllerTest {
     @Test
     public void newClient_ko_Internal_server_error() throws Exception {
         //Given
+        Client client = new TestClassConstructors().TestClient();
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"dni\":\"12345678A\",\"name\":\"Alber\",\"phone\":999888777}");
+                .content(this.objectMapper.writeValueAsString(client));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -142,35 +145,35 @@ public class ClientControllerTest {
     @Test
     public void putClient_success() throws Exception {
         //Given
-        Client client1 = new Client("12345678A", "Alber", 999888777);
-        Client modClient1 = new Client("87654321A", "Alber2", 777888999);
-        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client1));
-        Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenReturn(modClient1);
+        Client client = new TestClassConstructors().TestClient();
+        Client modClient = new TestClassConstructors().TestModClient();
+        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client));
+        Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenReturn(modClient);
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/clients/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modClient1));
+                .content(this.objectMapper.writeValueAsString(modClient));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",notNullValue()))
-                .andExpect(jsonPath("$.dni",is(modClient1.getDni())))
-                .andExpect(jsonPath("$.name",is(modClient1.getName())))
-                .andExpect(jsonPath("$.phone",is(modClient1.getPhone())))
+                .andExpect(jsonPath("$.dni",is(modClient.getDni())))
+                .andExpect(jsonPath("$.name",is(modClient.getName())))
+                .andExpect(jsonPath("$.phone",is(modClient.getPhone())))
                 .andExpect(jsonPath("$.id",notNullValue()));
     }
 
     @Test
     public void putClient_ko_null_attribute_JSON() throws Exception {
         //Given
-        Client client1 = new Client("12345678A", "Alber", 999888777);
-        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client1));
+        Client client = new TestClassConstructors().TestClient();
+        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client));
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new ConstraintViolationException("error", null));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/clients/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Alber\"}");
+                .content(this.objectMapper.writeValueAsString(client));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Bad Request"));
@@ -179,14 +182,14 @@ public class ClientControllerTest {
     @Test
     public void putClient_ko_Internal_server_error() throws Exception {
         //Given
-        Client client1 = new Client("12345678A", "Alber", 999888777);
-        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client1));
+        Client client = new TestClassConstructors().TestClient();
+        Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(client));
         Mockito.when(clientRepository.save(Mockito.any(Client.class))).thenThrow(new IllegalArgumentException("error"));
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/clients/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content("{\"dni\":\"12345678A\",\"name\":\"Alber\",\"phone\":999888777}");
+                .content(this.objectMapper.writeValueAsString(client));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Internal Server Error"));
@@ -195,13 +198,13 @@ public class ClientControllerTest {
     @Test
     public void putClient_notFound() throws Exception {
         //Given
-        Client modClient1 = new Client("12345678A", "Alber", 999888777);
+        Client modClient = new TestClassConstructors().TestModClient();
         Mockito.when(clientRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.empty());
         //when, then
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/clients/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(modClient1));
+                .content(this.objectMapper.writeValueAsString(modClient));
         mockMvc.perform(mockRequest)
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Id not found: 1"));
