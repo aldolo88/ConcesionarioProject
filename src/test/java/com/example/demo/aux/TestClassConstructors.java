@@ -88,5 +88,19 @@ public class TestClassConstructors {
     public OrderDetail TestModOrderDetail(){
         return new OrderDetail(TestModOrder(),TestModProduct(),20000.0);
     }
+    public Sale TestSale(){
+        return new Sale(TestClient(),TestEmployee(),this.date);
+    }
 
+    public Sale TestModSale(){
+        return new Sale(TestModClient(),TestModEmployee(),this.date);
+    }
+
+    public SaleDetail TestSaleDetail(){
+        return new SaleDetail(TestSale(),TestProduct(),10000.0);
+    }
+
+    public SaleDetail TestModSaleDetail(){
+        return new SaleDetail(TestModSale(),TestModProduct(),20000.0);
+    }
 }
