@@ -53,16 +53,12 @@ public class TestClassConstructors {
         return new VehicleId(TestProvider(),"Model1","Color1",1, this.type);
     }
 
-    public VehicleId TestModVehicleId(){
-        return new VehicleId(TestModProvider(),"Model2","Color2",2, this.type);
-    }
-
     public Vehicle TestVehicle(){
         return new Vehicle(TestVehicleId(),10000);
     }
 
     public Vehicle TestModVehicle(){
-        return new Vehicle(TestModVehicleId(),20000);
+        return new Vehicle(TestVehicleId(),20000);
     }
 
     public Product TestProduct(){
