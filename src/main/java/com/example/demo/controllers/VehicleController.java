@@ -1,8 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.model.Provider;
 import com.example.demo.model.Vehicle;
-import com.example.demo.model.VehicleId;
 import com.example.demo.model.repositories.VehicleRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
