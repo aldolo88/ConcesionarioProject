@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.*;
 
 import com.example.demo.aux.TestClassConstructors;
 import com.example.demo.model.Vehicle;
-import com.example.demo.model.VehicleId;
 import com.example.demo.model.repositories.VehicleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
-import java.util.Optional;
 
 @WebMvcTest(VehicleController.class)
 public class VehicleControllerTest {
