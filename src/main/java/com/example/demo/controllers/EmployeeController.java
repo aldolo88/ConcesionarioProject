@@ -30,6 +30,7 @@ class EmployeeController {
 
     @GetMapping("/employees")
     ResponseEntity<?> findAllEmployees(){
+        System.out.println("get a employees");
         try {
             List<Employee> employees = repository.findAll();
             return new ResponseEntity<>(employees, HttpStatus.OK);
