@@ -72,6 +72,10 @@ public class VehicleId implements Serializable {
         this.type = type;
     }
 
+    public String getStringType() {
+        return type.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
